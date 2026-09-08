@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.4] - 2026-09-08
+
+### Fixed
+
+- **Non-ASCII attachment names**: Slack rewrites every non-ASCII byte of a file name to `_` in its download URL (`대리결재.fig` becomes `____________.fig`), which left nothing to name the file with, so those downloads all landed as `slack-file.fig`. The name is now read from the download button's `aria-label`, which carries the real name in every locale — including Korean, where the verb follows the name (`"대리결재.fig 다운로드"`) instead of preceding it.
+- **Downloaded file names**: Saves now carry the real file name. Slack serves thumbnails as `image_720.png` and attachment links that end in `/download`, so every save used to land on the same name and pile up as `image_720 (1).png`, `image_720 (2).png`. The name is now taken from the response's `Content-Disposition`, then the surrounding markup (download link, file card title, image `alt`), then the URL, and only a nameless save falls back to a timestamped `slack-file-…` name. Characters that are legal on disk — parentheses, `+`, `!`, `&` — are no longer replaced with `_`.
+- **Where a download went**: Saving an image or attachment now confirms with an in-app toast showing the full path it was written to; clicking the toast opens that folder. Attachment downloads previously reported nothing at all on success.
+
 ## [1.5.1] - 2026-08-14
 
 ### Fixed
