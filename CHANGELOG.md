@@ -15,6 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Downloaded file names**: Saves now carry the real file name. Slack serves thumbnails as `image_720.png` and attachment links that end in `/download`, so every save used to land on the same name and pile up as `image_720 (1).png`, `image_720 (2).png`. The name is now taken from the response's `Content-Disposition`, then the surrounding markup (download link, file card title, image `alt`), then the URL, and only a nameless save falls back to a timestamped `slack-file-…` name. Characters that are legal on disk — parentheses, `+`, `!`, `&` — are no longer replaced with `_`.
 - **Where a download went**: Saving an image or attachment now confirms with an in-app toast showing the full path it was written to; clicking the toast opens that folder. Attachment downloads previously reported nothing at all on success.
 
+## [1.5.2] - 2026-08-14
+
+### Added
+
+- **Automatic updates**: The Tauri updater is enabled and points at `latest.json` from the newest published GitHub Release. Installed applications check it at startup and offer the update through Tauri's built-in dialog. The release workflow signs the updater bundles with the repository's private key and uploads `latest.json` alongside the installers, so only 1.5.2 and later can update in place — earlier versions have to be reinstalled once. See `docs/auto-update.md`.
+
 ## [1.5.1] - 2026-08-14
 
 ### Fixed
