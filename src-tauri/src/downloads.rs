@@ -122,7 +122,8 @@ fn notify_saved(app_handle: &tauri::AppHandle, title: &str, target: &Path, fallb
 }
 
 /// Derive a safe file stem from a caller-supplied name, dropping any path parts
-/// and characters that are illegal on common filesystems.
+/// and characters that are illegal on common filesystems. Everything else is
+/// kept so the saved file carries the name the user actually sees in Slack.
 fn sanitize_stem(filename: &str, default: &str) -> String {
     let raw = Path::new(filename)
         .file_stem()
@@ -131,10 +132,10 @@ fn sanitize_stem(filename: &str, default: &str) -> String {
     let cleaned: String = raw
         .chars()
         .map(|c| {
-            if c.is_alphanumeric() || matches!(c, '-' | '_' | ' ' | '.') {
-                c
-            } else {
+            if c.is_control() || matches!(c, '<' | '>' | ':' | '"' | '/' | '\\' | '|' | '?' | '*') {
                 '_'
+            } else {
+                c
             }
         })
         .collect();
@@ -303,6 +304,11 @@ mod tests {
         assert_eq!(sanitize_stem("....", DEFAULT_FILE_STEM), DEFAULT_FILE_STEM);
         let sanitized = sanitize_stem("a?b<c>d", DEFAULT_STEM);
         assert!(!sanitized.contains('?') && !sanitized.contains('<') && !sanitized.contains('>'));
+        // Characters that are legal on disk stay, so the saved name matches Slack.
+        assert_eq!(
+            sanitize_stem("Q3 report (final)+v2!.pdf", DEFAULT_FILE_STEM),
+            "Q3 report (final)+v2!"
+        );
         // Unicode letters (e.g. Korean) are preserved.
         assert_eq!(sanitize_stem("사진.png", DEFAULT_STEM), "사진");
         // Multi-dot names keep the inner dots in the stem.

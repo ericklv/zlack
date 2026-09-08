@@ -1389,7 +1389,7 @@ document.addEventListener('click', (e) => {
     if (zlackIsSlackFileDownload(target, parsed)) {
         e.preventDefault();
         e.stopImmediatePropagation();
-        zlackDownloadFile(parsed.href, target.getAttribute('download') || '');
+        zlackDownloadFile(parsed.href, target);
         return;
     }
 
@@ -1437,34 +1437,19 @@ function zlackToBase64(bytes) {
     return btoa(binary);
 }
 
-function zlackFilenameFromUrl(url) {
-    try {
-        const parsed = new URL(url, window.location.href);
-        return decodeURIComponent(parsed.pathname.split('/').filter(Boolean).pop() || '');
-    } catch (_) {
-        return '';
-    }
+// Naming rules (thumbnail placeholders, /download endpoints, DOM lookups) live
+// in download-names.cjs so they can be unit-tested; see
+// tests/download-names.test.cjs.
+function zlackResolveFilename(options) {
+    return ZlackDownloadNames.resolveFilename(
+        Object.assign({ baseHref: window.location.href }, options)
+    );
 }
 
-// filename*=UTF-8''… wins over plain filename=…; both are optional because
-// cross-origin responses may not expose the header at all.
-function zlackFilenameFromContentDisposition(header) {
-    if (!header) return '';
-    const star = header.match(/filename\*\s*=\s*utf-8''([^;]+)/i);
-    if (star) {
-        try {
-            return decodeURIComponent(star[1].trim());
-        } catch (_) { /* fall through to plain filename */ }
-    }
-    const quoted = header.match(/filename\s*=\s*"([^"]*)"/i);
-    if (quoted) return quoted[1].trim();
-    const bare = header.match(/filename\s*=\s*([^;]+)/i);
-    return bare ? bare[1].trim() : '';
-}
-
-// Minimal in-page feedback for failures (and clipboard success), since those
-// paths have no native toast of their own.
-function zlackPageToast(message) {
+// Minimal in-page feedback for saves, failures and clipboard success, since
+// those paths have no native toast of their own. An optional `action` makes the
+// toast clickable (used to open the folder a file just landed in).
+function zlackPageToast(message, action) {
     const ID = 'zlack-page-toast';
     const existing = document.getElementById(ID);
     if (existing) existing.remove();
@@ -1485,16 +1470,40 @@ function zlackPageToast(message) {
         border: '1px solid rgba(255,255,255,0.12)',
         boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
         font: '13px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-        pointerEvents: 'none',
-        whiteSpace: 'nowrap',
+        pointerEvents: action ? 'auto' : 'none',
+        cursor: action ? 'pointer' : 'default',
+        whiteSpace: 'pre-wrap',
         overflow: 'hidden',
-        textOverflow: 'ellipsis',
+        wordBreak: 'break-all',
     });
+    if (action) {
+        toast.addEventListener('click', () => {
+            toast.remove();
+            action();
+        });
+    }
     (document.body || document.documentElement).appendChild(toast);
-    setTimeout(() => toast.remove(), 4000);
+    setTimeout(() => toast.remove(), action ? 6000 : 4000);
 }
 
-async function zlackDownloadFile(url, suggestedName) {
+function zlackOpenDownloadsFolder() {
+    tauriInvoke('open_downloads_folder').catch((error) => {
+        console.error('Zlack: open Downloads folder failed', error);
+        zlackPageToast('Could not open Downloads folder');
+    });
+}
+
+// The Rust command returns the absolute path it wrote, so show it: otherwise
+// there is no way to tell where a download landed.
+function zlackNotifySaved(savedPath) {
+    const path = typeof savedPath === 'string' ? savedPath : '';
+    zlackPageToast(
+        path ? `Saved to ${path}\nClick to open the folder` : 'Saved to the Downloads folder',
+        zlackOpenDownloadsFolder
+    );
+}
+
+async function zlackDownloadFile(url, anchor) {
     try {
         const response = await zlackAuthenticatedFetch(url);
         if (!response.ok) throw new Error('HTTP ' + response.status);
@@ -1503,13 +1512,17 @@ async function zlackDownloadFile(url, suggestedName) {
         if (!blob.size) throw new Error('empty file');
         if (blob.size > ZLACK_MAX_DOWNLOAD_BYTES) throw new Error('file is too large to download');
         const bytes = new Uint8Array(await blob.arrayBuffer());
-        const filename = zlackFilenameFromContentDisposition(disposition)
-            || suggestedName
-            || zlackFilenameFromUrl(url);
-        await tauriInvoke('save_file', {
+        const filename = zlackResolveFilename({
+            disposition,
+            element: anchor,
+            url,
+            fallbackStem: 'slack-file',
+        });
+        const savedPath = await tauriInvoke('save_file', {
             filename,
             dataBase64: zlackToBase64(bytes),
         });
+        zlackNotifySaved(savedPath);
     } catch (error) {
         console.error('Zlack: file download failed', error);
         zlackPageToast('Download failed: ' + zlackErrorText(error));
@@ -1590,14 +1603,20 @@ function zlackErrorText(error) {
         return blob;
     }
 
-    async function saveImage(url) {
+    async function saveImage(url, element) {
         const blob = await fetchImageBlob(url);
         const bytes = new Uint8Array(await blob.arrayBuffer());
-        return tauriInvoke('save_image', {
-            filename: zlackFilenameFromUrl(url),
+        const savedPath = await tauriInvoke('save_image', {
+            filename: zlackResolveFilename({
+                element,
+                url,
+                fallbackStem: 'slack-image',
+            }),
             mime: blob.type || '',
             dataBase64: zlackToBase64(bytes),
         });
+        zlackNotifySaved(savedPath);
+        return savedPath;
     }
 
     // The async Clipboard API only guarantees image/png, so anything else is
@@ -1688,11 +1707,11 @@ function zlackErrorText(error) {
         window.addEventListener('blur', removeMenu, true);
     }
 
-    function menuItems(url) {
+    function menuItems(url, element) {
         return [
             {
                 label: 'Save',
-                action: () => saveImage(url).catch((error) => {
+                action: () => saveImage(url, element).catch((error) => {
                     console.error('Zlack: image save failed', error);
                     zlackPageToast('Image save failed');
                 }),
@@ -1708,10 +1727,7 @@ function zlackErrorText(error) {
             },
             {
                 label: 'Downloads',
-                action: () => tauriInvoke('open_downloads_folder').catch((error) => {
-                    console.error('Zlack: open Downloads folder failed', error);
-                    zlackPageToast('Could not open Downloads folder');
-                }),
+                action: zlackOpenDownloadsFolder,
             },
         ];
     }
@@ -1721,7 +1737,7 @@ function zlackErrorText(error) {
         if (!url) return;
         event.preventDefault();
         event.stopImmediatePropagation();
-        buildMenu(event.clientX, event.clientY, menuItems(url));
+        buildMenu(event.clientX, event.clientY, menuItems(url, event.target));
     }, true);
 })();
 
