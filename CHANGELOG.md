@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.1] - 2026-09-28
+
 ### Changed
 
 - **Tauri 2**: Migrated from Tauri 1 to Tauri 2. Remote IPC for Slack windows is now granted through `src-tauri/capabilities/slack.json`, and any command not listed there is denied. The tray, updater (`tauri-plugin-updater` with an install prompt), and single-instance handling use the v2 APIs. Linux builds now need `webkit2gtk-4.1`, and the Rust toolchain is no longer pinned to 1.92.
