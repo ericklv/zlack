@@ -81,3 +81,38 @@ jobs:
           prerelease: false
           includeUpdaterJson: true
           args: ${{ matrix.args }}
+
+      - name: Keep .deb for the Arch package
+        if: matrix.platform == 'ubuntu-22.04'
+        uses: actions/upload-artifact@v4
+        with:
+          name: deb
+          path: src-tauri/target/release/bundle/deb/*.deb
+
+  # Repackages the .deb as a pacman package and attaches it to the same draft release.
+  arch:
+    name: release (arch)
+    needs: release
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    container: archlinux:base-devel
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: deb
+          path: packaging/arch
+
+      - name: Build pacman package
+        run: |
+          pacman -Syu --noconfirm github-cli
+          useradd -m builder
+          chown -R builder packaging/arch
+          sed -i "s/^pkgver=.*/pkgver=${GITHUB_REF_NAME#v}/" packaging/arch/PKGBUILD
+          su builder -c "cd packaging/arch && makepkg --nodeps --noconfirm"
+
+      - name: Upload to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "$GITHUB_REF_NAME" packaging/arch/*.pkg.tar.zst --clobber -R "$GITHUB_REPOSITORY"
