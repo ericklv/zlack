@@ -27,6 +27,12 @@
 
 ---
 
+> [!NOTE]
+> Fork of [sanguneo/zlack](https://github.com/sanguneo/zlack) migrated to Tauri 2.
+> Tested on Arch Linux / CachyOS (webkit2gtk-4.1); Windows and macOS builds are untested.
+> Uses the bundle identifier `com.elevelab.zlack`, so it installs alongside the upstream app
+> with separate config and session data.
+
 ## Why Zlack
 
 Zlack keeps the familiar Slack web experience and adds the desktop behavior that
