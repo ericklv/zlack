@@ -1,0 +1,15 @@
+# Repackages the release .deb; pkgver is set by the release workflow.
+pkgname=zlack
+pkgver=1.5.4
+pkgrel=1
+pkgdesc="A lightweight Slack desktop client built with Tauri"
+arch=('x86_64')
+url="https://github.com/ericklv/zlack"
+license=('MIT')
+depends=('webkit2gtk-4.1' 'gtk3' 'openssl' 'libayatana-appindicator')
+source=("Zlack_${pkgver}_amd64.deb")
+sha256sums=('SKIP')
+
+package() {
+  bsdtar -xf data.tar.* -C "$pkgdir"
+}

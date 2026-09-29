@@ -33,3 +33,7 @@ src-tauri/webview2-runtime/
 
 # Build dist
 dists
+
+# Arch packaging output
+packaging/arch/*
+!packaging/arch/PKGBUILD

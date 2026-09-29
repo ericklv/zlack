@@ -59,6 +59,7 @@ then sign in to your Slack workspace.
 | Windows  | `.exe`, `.msi`      | Uses Microsoft Edge WebView2, shared or private. |
 | macOS    | `.dmg`, `.app`      | Uses the system WebKit webview.                  |
 | Linux    | `.deb`, `.AppImage` | Uses the system WebKitGTK stack.                 |
+| Arch     | `.pkg.tar.zst`      | `sudo pacman -U zlack-*.pkg.tar.zst`             |
 
 > [!NOTE]
 > Notification-click activation depends on the platform notification service
