@@ -12,12 +12,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sanguneo/zlack.git"
+    "url": "https://github.com/ericklv/zlack.git"
   },
   "bugs": {
-    "url": "https://github.com/sanguneo/zlack/issues"
+    "url": "https://github.com/ericklv/zlack/issues"
   },
-  "homepage": "https://github.com/sanguneo/zlack",
+  "homepage": "https://github.com/ericklv/zlack",
   "keywords": [
     "tauri",
     "slack",
@@ -37,6 +37,6 @@
     "build:dist:unix": "bash build_dist.sh"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^1"
+    "@tauri-apps/cli": "^2"
   }
 }
