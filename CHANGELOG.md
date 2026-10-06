@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.5] - 2026-10-06
+
+### Fixed
+
+- **AppImage without libfuse2**: The AppImage now ships with the static type2-runtime, so it runs on distributions that no longer install libfuse2 by default (Ubuntu 22.04+, Fedora, and others) instead of failing with `AppImages require FUSE to run`. The Tauri v1 bundler's own AppImage plugin embedded the legacy runtime; the build now places a current `linuxdeploy-plugin-appimage` next to linuxdeploy so it is used instead.
+- **Tiny UI on HiDPI Wayland (AppImage)**: Release AppImages no longer force `GDK_BACKEND=x11`; they prefer Wayland and fall back to X11, matching local `build_dist.sh` builds. Set `ZLACK_GDK_BACKEND=x11` to force X11.
+- **Starting offline**: Launching Zlack without a connection used to show a blank window with a DNS error. It now shows a Zlack screen that says Slack can't be reached, retries every few seconds and when the system comes back online, and opens Slack as soon as it is reachable.
+
 ## [1.5.4] - 2026-09-08
 
 ### Fixed
