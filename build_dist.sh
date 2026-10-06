@@ -20,6 +20,17 @@ if [[ -f "$GTK_PLUGIN_PATH" ]]; then
   touch -d '2038-01-01 00:00:00' "$GTK_PLUGIN_PATH" 2>/dev/null || true
 fi
 
+# Tauri v1's linuxdeploy embeds the legacy AppImage runtime, which needs libfuse2.
+# linuxdeploy prefers a plugin AppImage next to it, so use one built on the new
+# appimagetool (static type2-runtime, no libfuse2 needed). Mirrors release.yml.
+APPIMAGE_PLUGIN_PATH="$TAURI_CACHE_DIR/linuxdeploy-plugin-appimage-x86_64.AppImage"
+if [[ "$(uname -s)" == "Linux" && ! -f "$APPIMAGE_PLUGIN_PATH" ]]; then
+  wget -q -O "$APPIMAGE_PLUGIN_PATH" \
+    https://github.com/linuxdeploy/linuxdeploy-plugin-appimage/releases/download/1-alpha-20250213-1/linuxdeploy-plugin-appimage-x86_64.AppImage \
+    && chmod +x "$APPIMAGE_PLUGIN_PATH" || rm -f "$APPIMAGE_PLUGIN_PATH"
+fi
+export APPIMAGE_EXTRACT_AND_RUN=1
+
 # Clean AppImage staging dir to make repeated builds idempotent.
 # Without this, linuxdeploy-plugin-gtk can fail with e.g.:
 # `ln: failed to create symbolic link ...: File exists`

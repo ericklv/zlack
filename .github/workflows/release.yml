@@ -67,6 +67,19 @@ jobs:
       - name: Sync version metadata
         run: npm run update-version
 
+      # Tauri v1 bundles AppImages with an old linuxdeploy whose AppImage plugin
+      # embeds the legacy runtime, which needs libfuse2 (absent by default on
+      # Ubuntu 22.04+ etc.). linuxdeploy prefers a plugin AppImage placed next to
+      # it in Tauri's tools cache, so drop in a plugin built on the new
+      # appimagetool, which embeds the static type2-runtime (no libfuse2 needed).
+      - name: Use AppImage plugin with the static (libfuse2-free) runtime
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          mkdir -p ~/.cache/tauri
+          wget -q -O ~/.cache/tauri/linuxdeploy-plugin-appimage-x86_64.AppImage \
+            https://github.com/linuxdeploy/linuxdeploy-plugin-appimage/releases/download/1-alpha-20250213-1/linuxdeploy-plugin-appimage-x86_64.AppImage
+          chmod +x ~/.cache/tauri/linuxdeploy-plugin-appimage-x86_64.AppImage
+
       - name: Build and publish to draft release
         uses: tauri-apps/tauri-action@v0
         env:
@@ -76,6 +89,8 @@ jobs:
           # Disable strip during AppImage bundling to avoid linuxdeploy failing on
           # shared libs with RELR (`.relr.dyn`) relocations (mirrors build_dist.sh).
           NO_STRIP: 'true'
+          # Let the plugin AppImage run on runners without FUSE.
+          APPIMAGE_EXTRACT_AND_RUN: '1'
         with:
           tagName: ${{ github.ref_name }}
           releaseName: 'Zlack ${{ github.ref_name }}'
