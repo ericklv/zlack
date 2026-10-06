@@ -6,8 +6,10 @@
 use serde::Serialize;
 use std::{
     collections::{HashMap, HashSet, VecDeque},
+    net::ToSocketAddrs,
     path::PathBuf,
-    sync::Mutex,
+    sync::{mpsc, Mutex},
+    time::Duration,
 };
 use tauri::{
     scope::ipc::RemoteDomainAccessScope, CustomMenuItem, Manager, PhysicalPosition, PhysicalSize,
@@ -25,6 +27,20 @@ pub(crate) fn exe_sibling(name: &str) -> Option<PathBuf> {
     std::env::current_exe()
         .ok()
         .and_then(|exe| exe.parent().map(|dir| dir.join(name)))
+}
+
+// Started offline, the webview would show nothing but a bare DNS error. Only a
+// definite lookup failure counts as offline; a slow resolver keeps the normal path.
+fn slack_reachable() -> bool {
+    let (tx, rx) = mpsc::channel();
+    std::thread::spawn(move || {
+        let resolved = ("app.slack.com", 443)
+            .to_socket_addrs()
+            .map(|mut addrs| addrs.next().is_some())
+            .unwrap_or(false);
+        let _ = tx.send(resolved);
+    });
+    rx.recv_timeout(Duration::from_secs(3)).unwrap_or(true)
 }
 
 #[tauri::command]
@@ -903,11 +919,13 @@ fn main() {
       let app_handle = app.handle();
       let start_maximized = load_window_maximized(&app_handle);
       allow_remote_ipc_for_label(&app_handle, "main");
-      let _window = tauri::WindowBuilder::new(
-        app,
-        "main",
+      // Offline at launch: start on the bundled page, which opens Slack once it is reachable.
+      let start_url = if slack_reachable() {
         tauri::WindowUrl::External("https://app.slack.com/client".parse().unwrap())
-      )
+      } else {
+        tauri::WindowUrl::App("index.html".into())
+      };
+      let _window = tauri::WindowBuilder::new(app, "main", start_url)
       .additional_browser_args("--disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-renderer-backgrounding")
       .user_agent(user_agent())
       .title("Zlack")

@@ -20,7 +20,12 @@
         align-items: center;
         justify-content: center;
         gap: 1.25rem;
+        text-align: center;
+        padding: 0 2rem;
+        box-sizing: border-box;
       }
+      .logo { width: 96px; height: 96px; }
+      h1 { margin: 0; font-size: 1.75rem; font-weight: 600; letter-spacing: 0.01em; }
       .spinner {
         width: 36px;
         height: 36px;
@@ -30,18 +35,60 @@
         animation: spin 0.8s linear infinite;
       }
       @keyframes spin { to { transform: rotate(360deg); } }
-      .label { font-size: 0.95rem; letter-spacing: 0.02em; opacity: 0.85; }
+      .label { font-size: 0.95rem; letter-spacing: 0.02em; opacity: 0.85; max-width: 28rem; line-height: 1.5; }
+      button {
+        font: inherit;
+        color: #4a154b;
+        background: #f4ede4;
+        border: 0;
+        border-radius: 6px;
+        padding: 0.5rem 1.25rem;
+        cursor: pointer;
+      }
+      [hidden] { display: none; }
     </style>
   </head>
   <body>
     <!--
-      Zlack loads the Slack web client directly via a Tauri external window URL
-      (see src-tauri/src/main.rs). This page only exists as the bundled distDir
-      placeholder / fallback splash and is not normally rendered.
+      Zlack normally loads the Slack web client directly (see src-tauri/src/main.rs).
+      This page is only shown when Slack is unreachable at launch: it keeps checking
+      and opens Slack as soon as the network is back.
     -->
     <div class="splash">
-      <div class="spinner" role="status" aria-label="Loading"></div>
-      <div class="label">Loading Zlack...</div>
+      <img class="logo" src="zlack-icon.png" alt="" />
+      <h1>Zlack</h1>
+      <div class="spinner" id="spinner" role="status" aria-label="Connecting"></div>
+      <div class="label" id="status">Connecting to Slack...</div>
+      <button id="retry" type="button" hidden>Try again</button>
     </div>
+    <script>
+      const SLACK_URL = "https://app.slack.com/client";
+      const RETRY_MS = 5000;
+      const spinner = document.getElementById("spinner");
+      const status = document.getElementById("status");
+      const retry = document.getElementById("retry");
+      let timer = null;
+
+      async function connect() {
+        clearTimeout(timer);
+        spinner.hidden = false;
+        retry.hidden = true;
+        status.textContent = "Connecting to Slack...";
+        try {
+          await fetch("https://app.slack.com/", { mode: "no-cors", cache: "no-store" });
+          window.location.replace(SLACK_URL);
+        } catch {
+          spinner.hidden = true;
+          retry.hidden = false;
+          status.textContent =
+            "Can't reach Slack. Check your internet connection - Zlack will reconnect automatically.";
+          timer = setTimeout(connect, RETRY_MS);
+        }
+      }
+
+      retry.addEventListener("click", connect);
+      window.addEventListener("online", connect);
+      connect();
+    </script>
   </body>
 </html>
