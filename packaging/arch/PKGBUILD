@@ -1,6 +1,6 @@
 # Repackages the release .deb; pkgver is set by the release workflow.
 pkgname=zlack
-pkgver=2.0.1
+pkgver=2.0.2
 pkgrel=1
 pkgdesc="A lightweight Slack desktop client built with Tauri"
 arch=('x86_64')

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.2] - 2026-10-08
+
+### Changed
+
+- **Upstream 1.5.5**: Rebased on upstream 1.5.5, bringing in the AppImage without libfuse2, Wayland-first AppImages on HiDPI, and the offline start screen (ported to Tauri 2).
+
 ## [2.0.1] - 2026-09-28
 
 ### Changed
