@@ -11,8 +11,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/sanguneo/zlack/releases"><img alt="GitHub 릴리스" src="https://img.shields.io/github/v/release/sanguneo/zlack?style=flat-square&color=4A154B"></a>
-  <a href="https://github.com/sanguneo/zlack/blob/main/LICENSE"><img alt="MIT 라이선스" src="https://img.shields.io/badge/license-MIT-2EB67D?style=flat-square"></a>
+  <a href="https://github.com/ericklv/zlack/releases"><img alt="GitHub 릴리스" src="https://img.shields.io/github/v/release/ericklv/zlack?style=flat-square&color=4A154B"></a>
+  <a href="https://github.com/ericklv/zlack/blob/main/LICENSE"><img alt="MIT 라이선스" src="https://img.shields.io/badge/license-MIT-2EB67D?style=flat-square"></a>
   <img alt="Tauri 2" src="https://img.shields.io/badge/Tauri-2-24C8DB?style=flat-square&logo=tauri&logoColor=white">
   <img alt="Rust" src="https://img.shields.io/badge/Rust-native%20core-E01E5A?style=flat-square&logo=rust&logoColor=white">
 </p>
@@ -47,7 +47,7 @@ Zlack은 익숙한 Slack 웹 경험은 그대로 유지하면서 데스크톱 �
 
 ## 설치
 
-[GitHub Releases](https://github.com/sanguneo/zlack/releases/latest)에서
+[GitHub Releases](https://github.com/ericklv/zlack/releases/latest)에서
 운영체제에 맞는 최신 패키지를 내려받아 설치한 뒤 Slack 워크스페이스에
 로그인하세요.
 
@@ -178,7 +178,7 @@ scripts/
 이슈와 목적이 분명한 풀 리퀘스트를 환영합니다. 동작 변경을 제안할 때는
 대상 플랫폼과 현재 동작을 재현하는 절차를 함께 적어 주세요.
 
-- [이슈 등록](https://github.com/sanguneo/zlack/issues)
+- [이슈 등록](https://github.com/ericklv/zlack/issues)
 - [변경 이력](CHANGELOG.md)
 
 ## 라이선스

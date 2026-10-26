@@ -11,8 +11,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/sanguneo/zlack/releases"><img alt="GitHub release" src="https://img.shields.io/github/v/release/sanguneo/zlack?style=flat-square&color=4A154B"></a>
-  <a href="https://github.com/sanguneo/zlack/blob/main/LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-2EB67D?style=flat-square"></a>
+  <a href="https://github.com/ericklv/zlack/releases"><img alt="GitHub release" src="https://img.shields.io/github/v/release/ericklv/zlack?style=flat-square&color=4A154B"></a>
+  <a href="https://github.com/ericklv/zlack/blob/main/LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-2EB67D?style=flat-square"></a>
   <img alt="Tauri 2" src="https://img.shields.io/badge/Tauri-2-24C8DB?style=flat-square&logo=tauri&logoColor=white">
   <img alt="Rust" src="https://img.shields.io/badge/Rust-native%20core-E01E5A?style=flat-square&logo=rust&logoColor=white">
 </p>
@@ -51,7 +51,7 @@ and low-overhead packaging through the system WebView.
 ## Install
 
 Download the latest package from
-[GitHub Releases](https://github.com/sanguneo/zlack/releases/latest), install it,
+[GitHub Releases](https://github.com/ericklv/zlack/releases/latest), install it,
 then sign in to your Slack workspace.
 
 | Platform | Packages            | Runtime note                                     |
@@ -181,7 +181,7 @@ scripts/
 Issues and focused pull requests are welcome. For behavior changes, describe
 the target platform and include steps that reproduce the current behavior.
 
-- [Open an issue](https://github.com/sanguneo/zlack/issues)
+- [Open an issue](https://github.com/ericklv/zlack/issues)
 - [Read the changelog](CHANGELOG.md)
 
 ## License
