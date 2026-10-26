@@ -8,8 +8,11 @@ GitHub Releases.
 Copy the values from the ignored local file `.tauri-private/updater.env` into
 these GitHub Actions repository secrets:
 
-- `TAURI_SIGNING_PRIVATE_KEY`
-- `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`
+- `TAURI_PRIVATE_KEY`
+- `TAURI_KEY_PASSWORD`
+
+The Release workflow passes them to the Tauri v2 bundler as
+`TAURI_SIGNING_PRIVATE_KEY` and `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`.
 
 Keep an encrypted backup of `.tauri-private/updater.env`. Losing the private
 key means existing installations cannot verify updates signed by a replacement

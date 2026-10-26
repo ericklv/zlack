@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Tauri 2**: Migrated from Tauri 1 to Tauri 2. Remote IPC for Slack windows is now granted through `src-tauri/capabilities/slack.json`, and any command not listed there is denied. The tray, updater (`tauri-plugin-updater` with an install prompt), and single-instance handling use the v2 APIs. Linux builds now need `webkit2gtk-4.1`, and the Rust toolchain is no longer pinned to 1.92.
 - **Windows taskbar badge**: The overlay dot uses Tauri's built-in `set_overlay_icon` in place of the hand-rolled `ITaskbarList3` code. The unused overlay digit renderer was removed.
-- **Updater signing secrets**: Renamed to `TAURI_SIGNING_PRIVATE_KEY` and `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`.
+- **Updates from 1.5.x**: Updater bundles keep the v1 formats (`createUpdaterArtifacts: "v1Compatible"`), and releases are signed with the same key from the existing `TAURI_PRIVATE_KEY` / `TAURI_KEY_PASSWORD` secrets, so current installs update to this version as usual.
 
 ## [1.5.6] - 2026-10-26
 
