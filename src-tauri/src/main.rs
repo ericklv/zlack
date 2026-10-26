@@ -12,6 +12,7 @@ use std::{
     time::Duration,
 };
 use tauri::{
+    ipc::CapabilityBuilder,
     menu::{Menu, MenuItem, PredefinedMenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
     AppHandle, Manager, PhysicalPosition, PhysicalSize, Position, Size, WebviewUrl, WebviewWindow,
@@ -339,6 +340,21 @@ fn slack_window<'a>(
         .icon(icons::ICON_WINDOW.clone())
 }
 
+// capabilities/slack.json covers app.slack.com and slack.com. A workspace that
+// loads on its own host (acme.slack.com) gets the same commands there, in that
+// window only.
+fn allow_workspace_domain_ipc(app: &AppHandle, label: &str, domain: &str) -> tauri::Result<()> {
+    if matches!(domain, "app.slack.com" | "slack.com") {
+        return Ok(());
+    }
+    app.add_capability(
+        CapabilityBuilder::new(format!("slack-{label}-{domain}"))
+            .remote(format!("https://{domain}/*"))
+            .window(label)
+            .permission("slack-ipc"),
+    )
+}
+
 fn create_workspace_window(
     app: &tauri::AppHandle,
     team: &str,
@@ -356,6 +372,9 @@ fn create_workspace_window(
     let target_url = security::parse_slack_url(&target_url).ok_or(
         tauri::Error::InvalidWebviewUrl("workspace URLs must use HTTPS on slack.com"),
     )?;
+    if let Some(domain) = target_url.host_str() {
+        allow_workspace_domain_ipc(app, label, domain)?;
+    }
     let window = slack_window(app, label, WebviewUrl::External(target_url))?
         .visible(visible)
         .build()?;
