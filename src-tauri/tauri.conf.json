@@ -16,7 +16,7 @@
     "active": true,
     "targets": "all",
     "publisher": "sanguneo",
-    "createUpdaterArtifacts": true,
+    "createUpdaterArtifacts": "v1Compatible",
     "icon": [
       "icons/icon.ico",
       "icons/32x32.png",

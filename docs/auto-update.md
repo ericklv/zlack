@@ -23,7 +23,9 @@ key.
 4. Publish the draft GitHub Release created by the Release workflow.
 
 The workflow uploads `latest.json`, signed updater bundles, and their
-signatures. Installed applications check `latest.json` at startup and show
+signatures. `createUpdaterArtifacts` is `"v1Compatible"`, so the bundles keep
+the Tauri v1 formats (`.msi.zip`, `.AppImage.tar.gz`, `.app.tar.gz`) that
+1.5.x installs expect. Installed applications check `latest.json` at startup and show
 an install prompt (see `check_for_update` in `src-tauri/src/main.rs`) when a
 newer version is available.
 
