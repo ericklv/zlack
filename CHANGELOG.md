@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.3] - 2026-10-26
+
+### Changed
+
+- **Upstream 1.5.6**: Rebased on upstream 1.5.6, bringing in "Add a workspace" sign-in flows inside the WebView.
+- **Remote IPC**: Limited to app.slack.com and slack.com, plus a workspace window's own host, as in Tauri 1.
+
 ## [2.0.2] - 2026-10-08
 
 ### Changed
